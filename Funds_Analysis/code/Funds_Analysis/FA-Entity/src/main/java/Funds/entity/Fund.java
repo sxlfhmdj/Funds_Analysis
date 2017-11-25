@@ -11,6 +11,7 @@ import java.util.Date;
  * @version 1.0
  */
 public class Fund {
+
     /*基金名称*/
     private String fundName;
     /*基金代码*/

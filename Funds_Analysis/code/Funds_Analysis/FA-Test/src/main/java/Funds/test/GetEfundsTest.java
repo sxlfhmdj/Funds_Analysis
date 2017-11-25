@@ -8,9 +8,7 @@ import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.tags.InputTag;
-import org.htmlparser.tags.LinkTag;
-import org.htmlparser.tags.TableRow;
+import org.htmlparser.tags.*;
 import org.htmlparser.util.NodeList;
 
 import java.net.URL;
@@ -24,13 +22,26 @@ import java.util.List;
  *
  * @author <a href="mailto: dengjiang@camelotchina.com">邓江</a>
  * @version 1.0
+ * @desctipion:
+ * @reference: HTMLPARSER API - http://htmlparser.sourceforge.net/javadoc/index.html
  */
 public class GetEfundsTest {
 
 
     /**
+     *  Efunds
+     *  基金列表网址: https://e.efunds.com.cn/funds
+     *  基金详情网址：http://www.efunds.com.cn/html/fund/%s_fundinfo.htm
+     *  基金投资组合查询网址: http://query2.efunds.com.cn/view?id=27&fundcode={fundCode}&tab=cominvest&newenddate={queryDate!2017-09-30}
+     *
+     *
+     *
+     */
+
+
+    /**
      * <p>Discription: [测试主方法] </p>
-     * Created on: 2017/11/23 13:11
+     * Created on: 2017/ -/23 13:11
      *
      * @param
      * @return
@@ -43,68 +54,114 @@ public class GetEfundsTest {
     }
 
 
-
     /**
      * <p>Discription: [根据URL获取HTML网页] </p>
      * Created on: 2017/11/23 14:01
+     *
      * @param
      * @return
      * @author [邓江]
      */
-    public List<Fund> getEfunds(String url){
-        try{
+    public List<Fund> getEfunds(String url) {
+        try {
             //解析通过URL打开的链接
             Parser parser = new Parser(new URL(url).openConnection());
 
             //基金tr过滤器
             NodeFilter fundsFilter = new NodeFilter() {
                 public boolean accept(Node node) {
-                    if (node.getText().startsWith("tr fundType")){
+                    if (node.getText().startsWith("tr fundType")) {
                         return true;
                     }
                     return false;
                 }
             };
-            //a标签过滤器
-            NodeFilter aNodeFilter = new NodeClassFilter(LinkTag.class);
+            //td标签过滤
+            NodeFilter tdFilter = new NodeClassFilter(TableColumn.class);
+            //
+
+//            //table标签过滤器
+//            NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
+
+//            //a标签过滤器
+//            NodeFilter aNodeFilter = new NodeClassFilter(LinkTag.class);
+
 
             //过滤获取基金信息的tr标签
             NodeList nodeList = parser.extractAllNodesThatMatch(fundsFilter);
             //构造接基金收数据数组
             List<FundDto> fundDtos = new ArrayList<FundDto>();
 
-            for(int i = 0; i<nodeList.size();i++){
+            for (int i = 0; i < nodeList.size(); i++) {
                 Node node = nodeList.elementAt(i);
-                if (node instanceof TableRow){
-                    TableRow row = (TableRow)node;
-                    NodeList tdlist = row.getChildren();
-                    for(int j = 0; i<tdlist.size();i++){
-
-                    }
-                    LinkTag aTag = null;
-                    if (nodeList.elementAt(0) != null){
-                        aTag = (LinkTag)nodeList.elementAt(0);
-                    }
+                if (node instanceof TableRow) {
+                    TableRow row = (TableRow) node;
 
                     FundDto fund = new FundDto();
-                    fund.setFundName(row.getAttribute("fName"));
+                    String fundCode = row.getAttribute("fCode");
+                    fund.setShortName(row.getAttribute("fName"));
                     fund.setFundType(row.getAttribute("fundType"));
-                    fund.setFundCode(row.getAttribute("fundCode"));
-                    if (aTag != null) {
-                        fund.setFundInfoUrl(aTag.getAttribute("href"));
+                    fund.setFundPy(row.getAttribute("fPy"));
+                    fund.setFundCode(fundCode);
+
+                    NodeList childrens = row.getChildren();
+                    //获取基金的风险等级
+                    if (childrens != null && childrens.size() > 0) {
+                        for (int j = 0; j < childrens.size(); j++) {
+                            Node risk = childrens.elementAt(j);
+                            if (risk instanceof TableColumn) {
+                                TableColumn tb_risk = (TableColumn) risk;
+                                String tx_risk = tb_risk.getStringText();
+                                if (tx_risk.indexOf("风险") != -1) {
+                                    fund.setRiskLvl(tx_risk);
+                                }
+                            }
+                        }
                     }
+
+                    //构造基金详情信息URL
+                    fund.setFundInfoUrl(String.format("http://www.efunds.com.cn/html/fund/%s_fundinfo.htm", fundCode));
                     fundDtos.add(fund);
                 }
             }
 
+            //循环列表获取基金详情信息
+            for (FundDto fundDto : fundDtos){
+                String url_fundinfo = fundDto.getFundInfoUrl();
+                if (url_fundinfo != null && !url_fundinfo.equals("")) {
+                    Parser parser_fundinfo = new Parser(new URL(url_fundinfo).openConnection());
+                    NodeList tableNode_fundinfos = parser_fundinfo.extractAllNodesThatMatch(tdFilter);
+                    if (tableNode_fundinfos != null && tableNode_fundinfos.size() > 0) {
+                        for (int j = 0; j < tableNode_fundinfos.size(); j++) {
+                            Node node_fundinfo = tableNode_fundinfos.elementAt(j);
+                            if (node_fundinfo instanceof TableColumn) {
+                                TableColumn tb_fundinfo = (TableColumn) node_fundinfo;
+                                String tx_fundinfo = tb_fundinfo.getStringText();
+                                if (tx_fundinfo.indexOf("基金名称") != -1) {
+                                    Node node_fundinfo_value = tableNode_fundinfos.elementAt(j+2);
+                                    NodeList values = node_fundinfo_value.getChildren();
+                                    //TODO 获取基金名称
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+
+
+            }
+
+
+
 
             System.out.print(JSONObject.toJSONString(fundDtos));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.getStackTrace();
         }
         return new ArrayList<Fund>();
     }
-
 
 
 }

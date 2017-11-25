@@ -1,5 +1,7 @@
 package Funds.test.dto;
 
+import java.util.Date;
+
 /**
  * <p>Description: [描述]</p>
  * Copyright (c) 2017 北京柯莱特科技有限公司
@@ -9,10 +11,12 @@ package Funds.test.dto;
  * @version 1.0
  */
 public class FundDto {
-    /*基金名称*/
-    private String fundName;
     /*基金代码*/
     private String fundCode;
+    /*基金简称*/
+    private String ShortName;
+    /*基金名称*/
+    private String fundName;
     /*基金拼音*/
     private String fundPy;
     /*基金类型*/
@@ -21,6 +25,36 @@ public class FundDto {
     private String riskLvl;
     /*基金详情地址*/
     private String fundInfoUrl;
+    /*基金成立日期*/
+    private String setUpDate;
+    /*基金资产规模*/
+    private String fundScale;
+    /*基金托管人*/
+    private String hostPer;
+
+    public String getHostPer() {
+        return hostPer;
+    }
+
+    public void setHostPer(String hostPer) {
+        this.hostPer = hostPer;
+    }
+
+    public String getFundScale() {
+        return fundScale;
+    }
+
+    public void setFundScale(String fundScale) {
+        this.fundScale = fundScale;
+    }
+
+    public String getShortName() {
+        return ShortName;
+    }
+
+    public void setShortName(String shortName) {
+        ShortName = shortName;
+    }
 
     public String getFundName() {
         return fundName;
@@ -68,5 +102,13 @@ public class FundDto {
 
     public void setFundInfoUrl(String fundInfoUrl) {
         this.fundInfoUrl = fundInfoUrl;
+    }
+
+    public String getSetUpDate() {
+        return setUpDate;
+    }
+
+    public void setSetUpDate(String setUpDate) {
+        this.setUpDate = setUpDate;
     }
 }

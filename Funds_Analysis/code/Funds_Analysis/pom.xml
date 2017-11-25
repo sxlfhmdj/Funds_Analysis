@@ -11,6 +11,7 @@
     <modules>
         <module>FA-Test</module>
         <module>FA-Entity</module>
+        <module>FA-Dao</module>
     </modules>
 
 
