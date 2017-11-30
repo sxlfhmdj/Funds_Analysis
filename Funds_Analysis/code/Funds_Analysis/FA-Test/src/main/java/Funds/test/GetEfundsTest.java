@@ -2,6 +2,7 @@ package Funds.test;
 
 import Funds.entity.Fund;
 import Funds.test.dto.FundDto;
+import Funds.test.dto.StockInvest;
 import Funds.test.util.HtmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -14,7 +15,9 @@ import org.htmlparser.tags.*;
 import org.htmlparser.util.NodeList;
 
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -50,8 +53,12 @@ public class GetEfundsTest {
     public static void main(String[] args) {
         String efundsUrl = "https://e.efunds.com.cn/funds";
         GetEfundsTest test = new GetEfundsTest();
-        test.getEfunds(efundsUrl);
+//        test.getEfunds(efundsUrl);
+        List<StockInvest> testData = test.getStockInvest("110001");
+        System.out.println("*********************");
+        System.out.println(JSONObject.toJSONString(testData));
     }
+
 
 
     /**
@@ -62,7 +69,8 @@ public class GetEfundsTest {
      * @return
      * @author [邓江]
      */
-    public List<Fund> getEfunds(String url) {
+    public List<FundDto> getEfunds(String url) {
+        List<FundDto> fundDtos = new ArrayList<FundDto>();
         try {
             //解析通过URL打开的链接
             Parser parser = new Parser(new URL(url).openConnection());
@@ -85,8 +93,6 @@ public class GetEfundsTest {
 
             //过滤获取基金信息的tr标签
             NodeList nodeList = parser.extractAllNodesThatMatch(fundsFilter);
-            //构造接基金收数据数组
-            List<FundDto> fundDtos = new ArrayList<FundDto>();
 
             for (int i = 0; i < nodeList.size(); i++) {
                 Node node = nodeList.elementAt(i);
@@ -147,15 +153,105 @@ public class GetEfundsTest {
                             }
                         }
                     }
+                    fundDtos.add(fundDto);
+                    if (fundDto.getFundType().equals("1") || fundDto.getFundType().equals("4") || fundDto.getFundType().equals("5")){
+                        System.out.println(JSONObject.toJSONString(fundDto));
+                    }
                 }
             }
 
-            //获取各个基金各季度投资组合
         } catch (Exception e) {
             e.getStackTrace();
         }
-        return new ArrayList<Fund>();
+        return fundDtos;
     }
 
+
+    private List<StockInvest> getStockInvest(String fundCode){
+        List<StockInvest> stockInvests = new ArrayList<StockInvest>();
+        int[] months = new int[]{3,6,9,12};
+        int[] days = new int[]{31,30,30,31};
+        //获取当前日期
+        Calendar cal = Calendar.getInstance();
+        //当前月份
+        int curMonth = cal.get(Calendar.MONTH) + 1;
+        //当前年份
+        int curYear = cal.get(Calendar.YEAR);
+        int startMonth = 1;
+        int startYear = curYear;
+        int startTmp = 0;
+        for (int i = months.length - 1; i >= 0; i--) {
+            if (curMonth > months[i]){
+                startMonth =  months[i];
+                startTmp = i;
+                break;
+            }
+        }
+        if (startMonth == 1){
+            startYear = startYear -1;
+            startMonth = 12;
+            startTmp = 3;
+        }
+
+        year: for (int i = startYear; i > 2000; i--) {
+            if (i == startYear) {
+                for (int j = startTmp; j >= 0; j--) {
+                    String date = String.format("%s-%s-%s", i, String.format("%02d", months[j]), days[j]);
+                    String url = String.format("http://query2.efunds.com.cn/view?id=27&fundcode=%s&tab=cominvest&newenddate=%s", fundCode,date);
+                    List<StockInvest> addStocks = getStockInvestByQuarter(url, date, fundCode);
+                    if (addStocks != null && addStocks.size() > 0) {
+                        stockInvests.addAll(addStocks);
+                    } else {
+                        break year;
+                    }
+                }
+            } else {
+                for (int j = 3; j >= 0; j--) {
+                    String date = String.format("%s-%s-%s", i, String.format("%02d", months[j]), days[j]);
+                    String url = String.format("http://query2.efunds.com.cn/view?id=27&fundcode=%s&tab=cominvest&newenddate=%s", fundCode,date);
+                    List<StockInvest> addStocks = getStockInvestByQuarter(url, date, fundCode);
+                    if (addStocks != null && addStocks.size() > 0) {
+                        stockInvests.addAll(addStocks);
+                    } else {
+                        break year;
+                    }
+                }
+            }
+
+
+        }
+
+        return stockInvests;
+    }
+
+    private List<StockInvest> getStockInvestByQuarter(String url,String date, String fundCode){
+        List<StockInvest> stockInvests = new ArrayList<StockInvest>();
+        try{
+            Parser parser = new Parser(new URL(url).openConnection());
+            NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
+            NodeList tableNode_stocks = parser.extractAllNodesThatMatch(tableFilter);
+            if (tableNode_stocks != null && tableNode_stocks.size() > 17) {
+                TableTag tableTag = (TableTag) tableNode_stocks.elementAt(16);
+                for (int i = 1; i < tableTag.getRowCount(); i++) {
+                    TableRow row = tableTag.getRow(i);
+                    TableColumn[] cols = row.getColumns();
+                    StockInvest stockInvest = new StockInvest();
+                    stockInvest.setBelongFundCode(fundCode);
+                    stockInvest.setStDate(date);
+                    stockInvest.setSort(Integer.parseInt(HtmlUtil.rmHTMLTag(cols[0].getStringText())));
+                    stockInvest.setStockCode(HtmlUtil.rmHTMLTag(cols[1].getStringText()));
+                    stockInvest.setStockName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                    stockInvest.setStockAmount(HtmlUtil.rmHTMLTag(cols[3].getStringText()));
+                    stockInvest.setStockWorth(HtmlUtil.rmHTMLTag(cols[4].getStringText()));
+                    stockInvest.setProport(HtmlUtil.rmHTMLTag(cols[5].getStringText()));
+                    stockInvests.add(stockInvest);
+                    System.out.println(JSONObject.toJSONString(stockInvest));
+                }
+            }
+        }catch (Exception e){
+            e.getStackTrace();
+        }
+        return stockInvests;
+    }
 
 }

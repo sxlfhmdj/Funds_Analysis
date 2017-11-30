@@ -23,6 +23,7 @@ public class HtmlUtil {
      * @author [邓江]
      */
     public static String rmHTMLTag(String htmlStr) {
+        String regEx_space ="&nbsp;";
         String regEx_commons = "<!--.*?-->"; //定义html_commons的正则表达式
         String regEx_script = "<script[^>]*?>[\\s\\S]*?<\\/script>"; //定义script的正则表达式
         String regEx_style = "<style[^>]*?>[\\s\\S]*?<\\/style>"; //定义style的正则表达式
@@ -43,6 +44,10 @@ public class HtmlUtil {
         Pattern p_html = Pattern.compile(regEx_html, Pattern.CASE_INSENSITIVE);
         Matcher m_html = p_html.matcher(htmlStr);
         htmlStr = m_html.replaceAll(""); //过滤html标签
+
+        Pattern p_space = Pattern.compile(regEx_space, Pattern.CASE_INSENSITIVE);
+        Matcher m_space = p_space.matcher(htmlStr);
+        htmlStr = m_space.replaceAll(""); //过滤html_commons标签
 
         return htmlStr.trim(); //返回文本字符串
     }
