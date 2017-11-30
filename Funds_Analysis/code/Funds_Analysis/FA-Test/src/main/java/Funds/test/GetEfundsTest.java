@@ -2,11 +2,13 @@ package Funds.test;
 
 import Funds.entity.Fund;
 import Funds.test.dto.FundDto;
+import Funds.test.util.HtmlUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
+import org.htmlparser.Text;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.*;
 import org.htmlparser.util.NodeList;
@@ -33,8 +35,6 @@ public class GetEfundsTest {
      *  基金列表网址: https://e.efunds.com.cn/funds
      *  基金详情网址：http://www.efunds.com.cn/html/fund/%s_fundinfo.htm
      *  基金投资组合查询网址: http://query2.efunds.com.cn/view?id=27&fundcode={fundCode}&tab=cominvest&newenddate={queryDate!2017-09-30}
-     *
-     *
      *
      */
 
@@ -77,11 +77,7 @@ public class GetEfundsTest {
                 }
             };
             //td标签过滤
-            NodeFilter tdFilter = new NodeClassFilter(TableColumn.class);
-            //
-
-//            //table标签过滤器
-//            NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
+            NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
 
 //            //a标签过滤器
 //            NodeFilter aNodeFilter = new NodeClassFilter(LinkTag.class);
@@ -130,33 +126,31 @@ public class GetEfundsTest {
                 String url_fundinfo = fundDto.getFundInfoUrl();
                 if (url_fundinfo != null && !url_fundinfo.equals("")) {
                     Parser parser_fundinfo = new Parser(new URL(url_fundinfo).openConnection());
-                    NodeList tableNode_fundinfos = parser_fundinfo.extractAllNodesThatMatch(tdFilter);
+                    NodeList tableNode_fundinfos = parser_fundinfo.extractAllNodesThatMatch(tableFilter);
                     if (tableNode_fundinfos != null && tableNode_fundinfos.size() > 0) {
-                        for (int j = 0; j < tableNode_fundinfos.size(); j++) {
-                            Node node_fundinfo = tableNode_fundinfos.elementAt(j);
-                            if (node_fundinfo instanceof TableColumn) {
-                                TableColumn tb_fundinfo = (TableColumn) node_fundinfo;
-                                String tx_fundinfo = tb_fundinfo.getStringText();
-                                if (tx_fundinfo.indexOf("基金名称") != -1) {
-                                    Node node_fundinfo_value = tableNode_fundinfos.elementAt(j+2);
-                                    NodeList values = node_fundinfo_value.getChildren();
-                                    //TODO 获取基金名称
-                                }
+                        //获取基金信息表单
+                        TableTag tableTag = (TableTag) tableNode_fundinfos.elementAt(15);
+                        for (int i = 0; i < tableTag.getRowCount(); i++) {
+                            TableRow row = tableTag.getRow(i);
+                            TableColumn[] cols = row.getColumns();
+                            if ("基金名称".equals(cols[0].getStringText())){
+                                fundDto.setFundName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                            }
+                            if ("基金合同生效日".equals(cols[0].getStringText())){
+                                fundDto.setSetUpDate(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                            }
+                            if ("基金托管人".equals(cols[0].getStringText())){
+                                fundDto.setHostPer(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                            }
+                            if ("资产规模".equals(cols[0].getStringText())){
+                                fundDto.setFundScale(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
                             }
                         }
                     }
-
                 }
-
-
-
-
             }
 
-
-
-
-            System.out.print(JSONObject.toJSONString(fundDtos));
+            //获取各个基金各季度投资组合
         } catch (Exception e) {
             e.getStackTrace();
         }
