@@ -14,20 +14,21 @@
             <property name="forceBigDecimals" value="false" />
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="Funds.dao.root.dao" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java\Funds\dao\root\dao">
+        <javaModelGenerator targetPackage="Funds.dao.root.dao" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
             <property name="trimStrings" value="true" />
         </javaModelGenerator>
         <!-- 生成的映射文件包名和位置 -->
-        <sqlMapGenerator targetPackage="Funds.dao.root.xml" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java\Funds\dao\root\xml">
+        <sqlMapGenerator targetPackage="Funds.dao.root.xml" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="Funds.dao.root.iface" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java\Funds\dao\root\iface">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="Funds.dao.root.iface" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
         <!-- 要生成那些表(更改tableName和domainObjectName就可以) -->
-        <table tableName="tseckill" domainObjectName="Tseckill" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
+        <table tableName="fund_info" domainObjectName="FundInfo" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true" />
+        <table tableName="fund_portfolio" domainObjectName="FundPortfolio" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true" />
         <!-- <table tableName="course_info" domainObjectName="CourseInfo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" />
         <table tableName="course_user_info" domainObjectName="CourseUserInfo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" /> -->
     </context>
