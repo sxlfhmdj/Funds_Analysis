@@ -9,11 +9,11 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>FA-Test</module>
         <module>FA-Entity</module>
-        <module>FA-Dao</module>
-        <module>FA-Ecm</module>
         <module>FA-Common</module>
+        <module>FA-Dao</module>
+        <module>FA-Test</module>
+        <module>FA-Ecm</module>
     </modules>
 
     <dependencyManagement>

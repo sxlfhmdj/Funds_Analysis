@@ -1,85 +1,107 @@
-package Funds.test;
+package Funds.ecm.service.syncData.impl;
 
-import Funds.test.dto.FundDto;
-import Funds.test.dto.StockInvestDto;
-import Funds.test.util.HtmlUtil;
+import Funds.common.utils.DateUtil;
+import Funds.common.utils.HtmlUtil;
+import Funds.common.utils.MathUtil;
+import Funds.dao.root.dao.FundInfo;
+import Funds.dao.root.dao.FundInfoExample;
+import Funds.dao.root.dao.FundPortfolio;
+import Funds.dao.root.iface.FundInfoMapper;
+import Funds.ecm.dto.syncData.FundDto;
+import Funds.ecm.dto.syncData.StockInvestDto;
+import Funds.ecm.service.syncData.SyncEfundsService;
+import Funds.entity.FundCompany;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
 import org.htmlparser.filters.NodeClassFilter;
-import org.htmlparser.tags.*;
+import org.htmlparser.tags.TableColumn;
+import org.htmlparser.tags.TableRow;
+import org.htmlparser.tags.TableTag;
 import org.htmlparser.util.NodeList;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 /**
- * <p>Description: [获取易方达基金测试类]</p>
+ * <p>Description: [同步易方达数据服务实现]</p>
  * Copyright (c) 2017 北京柯莱特科技有限公司
- * Created on: 2017/11/23
+ * Created on: 2017/12/1
  *
  * @author <a href="mailto: dengjiang@camelotchina.com">邓江</a>
  * @version 1.0
- * @desctipion:
- * @reference: HTMLPARSER API - http://htmlparser.sourceforge.net/javadoc/index.html
  */
-public class GetEfundsTest {
+public class SyncEfundsServiceImpl implements SyncEfundsService{
+    @Autowired
+    private FundInfoMapper fundInfoMapper;
 
 
-    /**
-     *  Efunds
-     *  基金列表网址: https://e.efunds.com.cn/funds
-     *  基金详情网址：http://www.efunds.com.cn/html/fund/%s_fundinfo.htm
-     *  基金投资组合查询网址: http://query2.efunds.com.cn/view?id=27&fundcode={fundCode}&tab=cominvest&newenddate={queryDate!2017-09-30}
-     *
-     */
+    @Transactional
+    public void syncFundInfoOfEfunds() {
+        List<FundDto> fundOfNets = getEfunds();
+        FundInfoExample example = new FundInfoExample();
+        FundInfoExample.Criteria criteria = example.createCriteria();
+        criteria.andFundCompanyEqualTo(FundCompany.EFUNDS);
+        fundInfoMapper.deleteByExample(example);
+        if (fundOfNets != null && fundOfNets.size() > 0) {
+            for (FundDto dto : fundOfNets){
+                FundInfo fund = new FundInfo();
+                fund.setFundCode(dto.getFundCode());
+                fund.setFundName(dto.getFundName());
+                fund.setShortName(dto.getShortName());
+                fund.setFundPy(dto.getFundPy());
+                fund.setFundCompany(FundCompany.EFUNDS);
+                fund.setFundType(dto.getFundType());
+                fund.setCreateDt(new Date());
+                fund.setHostPer(dto.getHostPer());
+                fund.setRiskLvl(dto.getRiskLvl());
+                fund.setSetUpDt(dto.getSetUpDate());
+                fund.setFundScale(MathUtil.parseFundScale(dto.getFundScale()));
+                fundInfoMapper.insert(fund);
+            }
+        }
+    }
 
 
-    /**
-     * <p>Discription: [测试主方法] </p>
-     * Created on: 2017/ -/23 13:11
-     *
-     * @param
-     * @return
-     * @author [邓江]
-     */
-    public static void main(String[] args) {
-        String efundsUrl = "https://e.efunds.com.cn/funds";
-        GetEfundsTest test = new GetEfundsTest();
-        List<FundDto> fundAll = test.getEfunds(efundsUrl);
-        List<StockInvestDto> stockInvestAll = new ArrayList<StockInvestDto>();
-        for (FundDto fund : fundAll){
-            String fundType = fund.getFundType();
-            System.out.println(JSONObject.toJSONString(fund));
-//            if ("1".equals(fundType) || "4".equals(fundType) || "5".equals(fundType)){
-//                List<StockInvestDto> stockInvests = test.getStockInvest(fund.getFundCode());
-//                for (StockInvestDto dto : stockInvests){
-//                    System.out.println(JSONObject.toJSONString(dto));
-//                }
-//                stockInvestAll.addAll(stockInvests);
-//            }
+    public void syncFundPortfolioOfEfunds() {
+        //获取所有易方达基金：1股票型、4混合型、5指数型
+        FundInfoExample example = new FundInfoExample();
+        FundInfoExample.Criteria criteria = example.createCriteria();
+        criteria.andFundCompanyEqualTo(FundCompany.EFUNDS);
+        criteria.andFundTypeIn(Arrays.asList(new String[]{"1","4","5"}));
+        List<FundInfo> fundInfos = fundInfoMapper.selectByExample(example);
+        if (fundInfos != null && fundInfos.size() > 0){
+            for (FundInfo fund : fundInfos){
+                List<StockInvestDto> stockInvestDtos = getStockInvest(fund.getFundCode());
+                for (StockInvestDto dto : stockInvestDtos){
+                    FundPortfolio portfolio = new FundPortfolio();
+                    portfolio.setFundCode(fund.getFundCode());
+                    portfolio.setFundName(fund.getFundName());
+                    portfolio.set
+                }
+            }
         }
 
     }
 
-
-
     /**
-     * <p>Discription: [根据URL获取HTML网页] </p>
-     * Created on: 2017/11/23 14:01
+     * <p>Discription: [获取易方达基金信息] </p>
+     * Created on: 2017/12/1 14:43
      *
      * @param
      * @return
      * @author [邓江]
      */
-    public List<FundDto> getEfunds(String url) {
+    private List<FundDto> getEfunds() {
         List<FundDto> fundDtos = new ArrayList<FundDto>();
         try {
             //解析通过URL打开的链接
-            Parser parser = new Parser(new URL(url).openConnection());
+            Parser parser = new Parser(new URL("https://e.efunds.com.cn/funds").openConnection());
 
             //基金tr过滤器
             NodeFilter fundsFilter = new NodeFilter() {
@@ -92,10 +114,6 @@ public class GetEfundsTest {
             };
             //td标签过滤
             NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
-
-//            //a标签过滤器
-//            NodeFilter aNodeFilter = new NodeClassFilter(LinkTag.class);
-
 
             //过滤获取基金信息的tr标签
             NodeList nodeList = parser.extractAllNodesThatMatch(fundsFilter);
@@ -111,6 +129,7 @@ public class GetEfundsTest {
                     fund.setFundType(row.getAttribute("fundType"));
                     fund.setFundPy(row.getAttribute("fPy"));
                     fund.setFundCode(fundCode);
+
 
                     NodeList childrens = row.getChildren();
                     //获取基金的风险等级
@@ -149,7 +168,11 @@ public class GetEfundsTest {
                                 fundDto.setFundName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
                             }
                             if ("基金合同生效日".equals(cols[0].getStringText())){
-                                fundDto.setSetUpDate(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                                String dtStr = HtmlUtil.rmHTMLTag(cols[2].getStringText());
+                                if (!Strings.isNullOrEmpty(dtStr)){
+                                    fundDto.setSetUpDate(DateUtil.parseToDate(dtStr, DateUtil.formate_C_yyyyMMdd));
+                                }
+
                             }
                             if ("基金托管人".equals(cols[0].getStringText())){
                                 fundDto.setHostPer(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
@@ -260,5 +283,6 @@ public class GetEfundsTest {
         }
         return stockInvestDtos;
     }
+
 
 }

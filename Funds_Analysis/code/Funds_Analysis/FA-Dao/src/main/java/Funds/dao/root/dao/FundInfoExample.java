@@ -456,6 +456,76 @@ public class FundInfoExample {
             return (Criteria) this;
         }
 
+        public Criteria andFundCompanyIsNull() {
+            addCriterion("fund_company is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyIsNotNull() {
+            addCriterion("fund_company is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyEqualTo(String value) {
+            addCriterion("fund_company =", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyNotEqualTo(String value) {
+            addCriterion("fund_company <>", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyGreaterThan(String value) {
+            addCriterion("fund_company >", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyGreaterThanOrEqualTo(String value) {
+            addCriterion("fund_company >=", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyLessThan(String value) {
+            addCriterion("fund_company <", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyLessThanOrEqualTo(String value) {
+            addCriterion("fund_company <=", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyLike(String value) {
+            addCriterion("fund_company like", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyNotLike(String value) {
+            addCriterion("fund_company not like", value, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyIn(List<String> values) {
+            addCriterion("fund_company in", values, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyNotIn(List<String> values) {
+            addCriterion("fund_company not in", values, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyBetween(String value1, String value2) {
+            addCriterion("fund_company between", value1, value2, "fundCompany");
+            return (Criteria) this;
+        }
+
+        public Criteria andFundCompanyNotBetween(String value1, String value2) {
+            addCriterion("fund_company not between", value1, value2, "fundCompany");
+            return (Criteria) this;
+        }
+
         public Criteria andRiskLvlIsNull() {
             addCriterion("risk_lvl is null");
             return (Criteria) this;

@@ -14,6 +14,8 @@ public class FundInfo {
 
     private String fundType;
 
+    private String fundCompany;
+
     private String riskLvl;
 
     private Date setUpDt;
@@ -62,6 +64,14 @@ public class FundInfo {
 
     public void setFundType(String fundType) {
         this.fundType = fundType == null ? null : fundType.trim();
+    }
+
+    public String getFundCompany() {
+        return fundCompany;
+    }
+
+    public void setFundCompany(String fundCompany) {
+        this.fundCompany = fundCompany == null ? null : fundCompany.trim();
     }
 
     public String getRiskLvl() {
