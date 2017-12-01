@@ -1,21 +1,17 @@
 package Funds.test;
 
-import Funds.entity.Fund;
 import Funds.test.dto.FundDto;
-import Funds.test.dto.StockInvest;
+import Funds.test.dto.StockInvestDto;
 import Funds.test.util.HtmlUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
-import org.htmlparser.Text;
 import org.htmlparser.filters.NodeClassFilter;
 import org.htmlparser.tags.*;
 import org.htmlparser.util.NodeList;
 
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -54,7 +50,7 @@ public class GetEfundsTest {
         String efundsUrl = "https://e.efunds.com.cn/funds";
         GetEfundsTest test = new GetEfundsTest();
 //        test.getEfunds(efundsUrl);
-        List<StockInvest> testData = test.getStockInvest("110001");
+        List<StockInvestDto> testData = test.getStockInvest("110001");
         System.out.println("*********************");
         System.out.println(JSONObject.toJSONString(testData));
     }
@@ -167,8 +163,9 @@ public class GetEfundsTest {
     }
 
 
-    private List<StockInvest> getStockInvest(String fundCode){
-        List<StockInvest> stockInvests = new ArrayList<StockInvest>();
+    /**获取基金投资组合数据**/
+    public List<StockInvestDto> getStockInvest(String fundCode){
+        List<StockInvestDto> stockInvestDtos = new ArrayList<StockInvestDto>();
         int[] months = new int[]{3,6,9,12};
         int[] days = new int[]{31,30,30,31};
         //获取当前日期
@@ -198,9 +195,9 @@ public class GetEfundsTest {
                 for (int j = startTmp; j >= 0; j--) {
                     String date = String.format("%s-%s-%s", i, String.format("%02d", months[j]), days[j]);
                     String url = String.format("http://query2.efunds.com.cn/view?id=27&fundcode=%s&tab=cominvest&newenddate=%s", fundCode,date);
-                    List<StockInvest> addStocks = getStockInvestByQuarter(url, date, fundCode);
+                    List<StockInvestDto> addStocks = getStockInvestByQuarter(url, date, fundCode);
                     if (addStocks != null && addStocks.size() > 0) {
-                        stockInvests.addAll(addStocks);
+                        stockInvestDtos.addAll(addStocks);
                     } else {
                         break year;
                     }
@@ -209,9 +206,9 @@ public class GetEfundsTest {
                 for (int j = 3; j >= 0; j--) {
                     String date = String.format("%s-%s-%s", i, String.format("%02d", months[j]), days[j]);
                     String url = String.format("http://query2.efunds.com.cn/view?id=27&fundcode=%s&tab=cominvest&newenddate=%s", fundCode,date);
-                    List<StockInvest> addStocks = getStockInvestByQuarter(url, date, fundCode);
+                    List<StockInvestDto> addStocks = getStockInvestByQuarter(url, date, fundCode);
                     if (addStocks != null && addStocks.size() > 0) {
-                        stockInvests.addAll(addStocks);
+                        stockInvestDtos.addAll(addStocks);
                     } else {
                         break year;
                     }
@@ -221,11 +218,11 @@ public class GetEfundsTest {
 
         }
 
-        return stockInvests;
+        return stockInvestDtos;
     }
 
-    private List<StockInvest> getStockInvestByQuarter(String url,String date, String fundCode){
-        List<StockInvest> stockInvests = new ArrayList<StockInvest>();
+    private List<StockInvestDto> getStockInvestByQuarter(String url, String date, String fundCode){
+        List<StockInvestDto> stockInvestDtos = new ArrayList<StockInvestDto>();
         try{
             Parser parser = new Parser(new URL(url).openConnection());
             NodeFilter tableFilter = new NodeClassFilter(TableTag.class);
@@ -235,23 +232,23 @@ public class GetEfundsTest {
                 for (int i = 1; i < tableTag.getRowCount(); i++) {
                     TableRow row = tableTag.getRow(i);
                     TableColumn[] cols = row.getColumns();
-                    StockInvest stockInvest = new StockInvest();
-                    stockInvest.setBelongFundCode(fundCode);
-                    stockInvest.setStDate(date);
-                    stockInvest.setSort(Integer.parseInt(HtmlUtil.rmHTMLTag(cols[0].getStringText())));
-                    stockInvest.setStockCode(HtmlUtil.rmHTMLTag(cols[1].getStringText()));
-                    stockInvest.setStockName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
-                    stockInvest.setStockAmount(HtmlUtil.rmHTMLTag(cols[3].getStringText()));
-                    stockInvest.setStockWorth(HtmlUtil.rmHTMLTag(cols[4].getStringText()));
-                    stockInvest.setProport(HtmlUtil.rmHTMLTag(cols[5].getStringText()));
-                    stockInvests.add(stockInvest);
-                    System.out.println(JSONObject.toJSONString(stockInvest));
+                    StockInvestDto stockInvestDto = new StockInvestDto();
+                    stockInvestDto.setBelongFundCode(fundCode);
+                    stockInvestDto.setStDate(date);
+                    stockInvestDto.setSort(Integer.parseInt(HtmlUtil.rmHTMLTag(cols[0].getStringText())));
+                    stockInvestDto.setStockCode(HtmlUtil.rmHTMLTag(cols[1].getStringText()));
+                    stockInvestDto.setStockName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                    stockInvestDto.setStockAmount(HtmlUtil.rmHTMLTag(cols[3].getStringText()));
+                    stockInvestDto.setStockWorth(HtmlUtil.rmHTMLTag(cols[4].getStringText()));
+                    stockInvestDto.setProport(HtmlUtil.rmHTMLTag(cols[5].getStringText()));
+                    stockInvestDtos.add(stockInvestDto);
+                    System.out.println(JSONObject.toJSONString(stockInvestDto));
                 }
             }
         }catch (Exception e){
             e.getStackTrace();
         }
-        return stockInvests;
+        return stockInvestDtos;
     }
 
 }

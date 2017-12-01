@@ -1,6 +1,6 @@
 package Funds.test.dto;
 
-public class StockInvest {
+public class StockInvestDto {
     /**股票代码**/
     private String stockCode;
     /**股票名称**/
