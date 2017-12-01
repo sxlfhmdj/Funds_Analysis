@@ -1,0 +1,36 @@
+## --指定运行环境 start
+spring:
+  profiles:
+    active: "@profileActive@"
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    joda-date-time-format: yyyy-MM-dd HH:mm:ss
+## --指定运行环境 end
+
+  # --druid 连接池配置 start
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    druid:
+      web-stat-filter:
+        exclusions: \*.js,\*.gif,\*.jpg,\*.png,\*.css,\*.ico,/druid/*
+      stat-view-servlet:
+        login-username: druid
+        login-password: 11112222
+
+  # --druid 配置 end
+
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    cacheSeconds: 5000
+
+# --mybatis配置 start
+mybatis:
+  mapper-locations: classpath*:mapper/*/*Mapper.xml
+  typeAliasesPackage: com.camelot.core.entity
+  settings:
+    logImpl: STDOUT_LOGGING
+# --mybatis配置 end
+

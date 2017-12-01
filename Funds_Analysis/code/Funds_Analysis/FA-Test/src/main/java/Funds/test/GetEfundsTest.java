@@ -49,10 +49,19 @@ public class GetEfundsTest {
     public static void main(String[] args) {
         String efundsUrl = "https://e.efunds.com.cn/funds";
         GetEfundsTest test = new GetEfundsTest();
-//        test.getEfunds(efundsUrl);
-        List<StockInvestDto> testData = test.getStockInvest("110001");
-        System.out.println("*********************");
-        System.out.println(JSONObject.toJSONString(testData));
+        List<FundDto> fundAll = test.getEfunds(efundsUrl);
+        List<StockInvestDto> stockInvestAll = new ArrayList<StockInvestDto>();
+        for (FundDto fund : fundAll){
+            String fundType = fund.getFundType();
+            if ("1".equals(fundType) || "4".equals(fundType) || "5".equals(fundType)){
+                List<StockInvestDto> stockInvests = test.getStockInvest(fund.getFundCode());
+                for (StockInvestDto dto : stockInvests){
+                    System.out.println(JSONObject.toJSONString(dto));
+                }
+                stockInvestAll.addAll(stockInvests);
+            }
+        }
+
     }
 
 
