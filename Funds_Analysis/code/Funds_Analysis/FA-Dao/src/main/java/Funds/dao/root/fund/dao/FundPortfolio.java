@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class FundPortfolio {
+    private Long id;
+
     private String stockCode;
 
     private String stockName;
@@ -23,6 +25,14 @@ public class FundPortfolio {
     private BigDecimal occupProport;
 
     private Date createDt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getStockCode() {
         return stockCode;

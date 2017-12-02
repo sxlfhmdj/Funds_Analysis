@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="Funds.dao.root.fund.iface.FundPortfolioMapper">
   <resultMap id="BaseResultMap" type="Funds.dao.root.fund.dao.FundPortfolio">
+    <id column="id" jdbcType="BIGINT" property="id" />
     <result column="stock_code" jdbcType="VARCHAR" property="stockCode" />
     <result column="stock_name" jdbcType="VARCHAR" property="stockName" />
     <result column="stock_amount" jdbcType="DECIMAL" property="stockAmount" />
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    stock_code, stock_name, stock_amount, stock_worth, fund_code, fund_name, st_dt, sort, 
-    occup_proport, create_dt
+    id, stock_code, stock_name, stock_amount, stock_worth, fund_code, fund_name, st_dt, 
+    sort, occup_proport, create_dt
   </sql>
   <select id="selectByExample" parameterType="Funds.dao.root.fund.dao.FundPortfolioExample" resultMap="BaseResultMap">
     select
@@ -90,6 +91,16 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fund_portfolio
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from fund_portfolio
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
   <delete id="deleteByExample" parameterType="Funds.dao.root.fund.dao.FundPortfolioExample">
     delete from fund_portfolio
     <if test="_parameter != null">
@@ -97,18 +108,21 @@
     </if>
   </delete>
   <insert id="insert" parameterType="Funds.dao.root.fund.dao.FundPortfolio">
-    insert into fund_portfolio (stock_code, stock_name, stock_amount, 
-      stock_worth, fund_code, fund_name, 
-      st_dt, sort, occup_proport, 
-      create_dt)
-    values (#{stockCode,jdbcType=VARCHAR}, #{stockName,jdbcType=VARCHAR}, #{stockAmount,jdbcType=DECIMAL}, 
-      #{stockWorth,jdbcType=DECIMAL}, #{fundCode,jdbcType=VARCHAR}, #{fundName,jdbcType=VARCHAR}, 
-      #{stDt,jdbcType=TIMESTAMP}, #{sort,jdbcType=INTEGER}, #{occupProport,jdbcType=DECIMAL}, 
-      #{createDt,jdbcType=TIMESTAMP})
+    insert into fund_portfolio (id, stock_code, stock_name, 
+      stock_amount, stock_worth, fund_code, 
+      fund_name, st_dt, sort, 
+      occup_proport, create_dt)
+    values (#{id,jdbcType=BIGINT}, #{stockCode,jdbcType=VARCHAR}, #{stockName,jdbcType=VARCHAR}, 
+      #{stockAmount,jdbcType=DECIMAL}, #{stockWorth,jdbcType=DECIMAL}, #{fundCode,jdbcType=VARCHAR}, 
+      #{fundName,jdbcType=VARCHAR}, #{stDt,jdbcType=TIMESTAMP}, #{sort,jdbcType=INTEGER}, 
+      #{occupProport,jdbcType=DECIMAL}, #{createDt,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="Funds.dao.root.fund.dao.FundPortfolio">
     insert into fund_portfolio
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="stockCode != null">
         stock_code,
       </if>
@@ -141,6 +155,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
       <if test="stockCode != null">
         #{stockCode,jdbcType=VARCHAR},
       </if>
@@ -182,6 +199,9 @@
   <update id="updateByExampleSelective" parameterType="map">
     update fund_portfolio
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
       <if test="record.stockCode != null">
         stock_code = #{record.stockCode,jdbcType=VARCHAR},
       </if>
@@ -219,7 +239,8 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update fund_portfolio
-    set stock_code = #{record.stockCode,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=BIGINT},
+      stock_code = #{record.stockCode,jdbcType=VARCHAR},
       stock_name = #{record.stockName,jdbcType=VARCHAR},
       stock_amount = #{record.stockAmount,jdbcType=DECIMAL},
       stock_worth = #{record.stockWorth,jdbcType=DECIMAL},
@@ -232,5 +253,55 @@
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="Funds.dao.root.fund.dao.FundPortfolio">
+    update fund_portfolio
+    <set>
+      <if test="stockCode != null">
+        stock_code = #{stockCode,jdbcType=VARCHAR},
+      </if>
+      <if test="stockName != null">
+        stock_name = #{stockName,jdbcType=VARCHAR},
+      </if>
+      <if test="stockAmount != null">
+        stock_amount = #{stockAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="stockWorth != null">
+        stock_worth = #{stockWorth,jdbcType=DECIMAL},
+      </if>
+      <if test="fundCode != null">
+        fund_code = #{fundCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fundName != null">
+        fund_name = #{fundName,jdbcType=VARCHAR},
+      </if>
+      <if test="stDt != null">
+        st_dt = #{stDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="occupProport != null">
+        occup_proport = #{occupProport,jdbcType=DECIMAL},
+      </if>
+      <if test="createDt != null">
+        create_dt = #{createDt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="Funds.dao.root.fund.dao.FundPortfolio">
+    update fund_portfolio
+    set stock_code = #{stockCode,jdbcType=VARCHAR},
+      stock_name = #{stockName,jdbcType=VARCHAR},
+      stock_amount = #{stockAmount,jdbcType=DECIMAL},
+      stock_worth = #{stockWorth,jdbcType=DECIMAL},
+      fund_code = #{fundCode,jdbcType=VARCHAR},
+      fund_name = #{fundName,jdbcType=VARCHAR},
+      st_dt = #{stDt,jdbcType=TIMESTAMP},
+      sort = #{sort,jdbcType=INTEGER},
+      occup_proport = #{occupProport,jdbcType=DECIMAL},
+      create_dt = #{createDt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

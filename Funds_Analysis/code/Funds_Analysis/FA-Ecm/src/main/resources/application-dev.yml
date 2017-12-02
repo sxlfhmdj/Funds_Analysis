@@ -10,7 +10,7 @@ server:
 spring:
   # --druid 连接池配置 start
   datasource:
-    url: jdbc:mysql://192.168.1.107:3306/funds_analysis?characterEncoding=utf8
+    url: jdbc:mysql://192.168.199.117:3306/funds_analysis?characterEncoding=utf8
     username: root
     password: 11112222
     # 下面为连接池的补充设置，应用到上面所有数据源中
@@ -26,7 +26,7 @@ spring:
 
 #  #redis配置
   redis:
-    host: 192.168.1.107
+    host: 192.168.199.117
     port: 6379
     password: 11112222
     pool:
@@ -41,6 +41,6 @@ spring:
 logging:
   level:
     root: info
-    Funds.dao.: debug
+    Funds.dao: debug
   file: ./logs/FA-Ecm
 # --日志管理 end

@@ -7,7 +7,7 @@
     <result column="short_name" jdbcType="VARCHAR" property="shortName" />
     <result column="fund_py" jdbcType="VARCHAR" property="fundPy" />
     <result column="fund_type" jdbcType="CHAR" property="fundType" />
-    <result column="fund_company" jdbcType="CHAR" property="fundCompany" />
+    <result column="fund_company" jdbcType="VARCHAR" property="fundCompany" />
     <result column="risk_lvl" jdbcType="VARCHAR" property="riskLvl" />
     <result column="set_up_dt" jdbcType="TIMESTAMP" property="setUpDt" />
     <result column="host_per" jdbcType="VARCHAR" property="hostPer" />
@@ -113,7 +113,7 @@
       risk_lvl, set_up_dt, host_per, 
       fund_scale, create_dt)
     values (#{fundCode,jdbcType=VARCHAR}, #{fundName,jdbcType=VARCHAR}, #{shortName,jdbcType=VARCHAR}, 
-      #{fundPy,jdbcType=VARCHAR}, #{fundType,jdbcType=CHAR}, #{fundCompany,jdbcType=CHAR}, 
+      #{fundPy,jdbcType=VARCHAR}, #{fundType,jdbcType=CHAR}, #{fundCompany,jdbcType=VARCHAR}, 
       #{riskLvl,jdbcType=VARCHAR}, #{setUpDt,jdbcType=TIMESTAMP}, #{hostPer,jdbcType=VARCHAR}, 
       #{fundScale,jdbcType=DECIMAL}, #{createDt,jdbcType=TIMESTAMP})
   </insert>
@@ -171,7 +171,7 @@
         #{fundType,jdbcType=CHAR},
       </if>
       <if test="fundCompany != null">
-        #{fundCompany,jdbcType=CHAR},
+        #{fundCompany,jdbcType=VARCHAR},
       </if>
       <if test="riskLvl != null">
         #{riskLvl,jdbcType=VARCHAR},
@@ -215,7 +215,7 @@
         fund_type = #{record.fundType,jdbcType=CHAR},
       </if>
       <if test="record.fundCompany != null">
-        fund_company = #{record.fundCompany,jdbcType=CHAR},
+        fund_company = #{record.fundCompany,jdbcType=VARCHAR},
       </if>
       <if test="record.riskLvl != null">
         risk_lvl = #{record.riskLvl,jdbcType=VARCHAR},
@@ -244,7 +244,7 @@
       short_name = #{record.shortName,jdbcType=VARCHAR},
       fund_py = #{record.fundPy,jdbcType=VARCHAR},
       fund_type = #{record.fundType,jdbcType=CHAR},
-      fund_company = #{record.fundCompany,jdbcType=CHAR},
+      fund_company = #{record.fundCompany,jdbcType=VARCHAR},
       risk_lvl = #{record.riskLvl,jdbcType=VARCHAR},
       set_up_dt = #{record.setUpDt,jdbcType=TIMESTAMP},
       host_per = #{record.hostPer,jdbcType=VARCHAR},
@@ -270,7 +270,7 @@
         fund_type = #{fundType,jdbcType=CHAR},
       </if>
       <if test="fundCompany != null">
-        fund_company = #{fundCompany,jdbcType=CHAR},
+        fund_company = #{fundCompany,jdbcType=VARCHAR},
       </if>
       <if test="riskLvl != null">
         risk_lvl = #{riskLvl,jdbcType=VARCHAR},
@@ -296,7 +296,7 @@
       short_name = #{shortName,jdbcType=VARCHAR},
       fund_py = #{fundPy,jdbcType=VARCHAR},
       fund_type = #{fundType,jdbcType=CHAR},
-      fund_company = #{fundCompany,jdbcType=CHAR},
+      fund_company = #{fundCompany,jdbcType=VARCHAR},
       risk_lvl = #{riskLvl,jdbcType=VARCHAR},
       set_up_dt = #{setUpDt,jdbcType=TIMESTAMP},
       host_per = #{hostPer,jdbcType=VARCHAR},

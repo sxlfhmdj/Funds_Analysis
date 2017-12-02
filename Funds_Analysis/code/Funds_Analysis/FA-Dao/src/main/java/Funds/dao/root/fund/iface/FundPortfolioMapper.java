@@ -10,13 +10,21 @@ public interface FundPortfolioMapper {
 
     int deleteByExample(FundPortfolioExample example);
 
+    int deleteByPrimaryKey(Long id);
+
     int insert(FundPortfolio record);
 
     int insertSelective(FundPortfolio record);
 
     List<FundPortfolio> selectByExample(FundPortfolioExample example);
 
+    FundPortfolio selectByPrimaryKey(Long id);
+
     int updateByExampleSelective(@Param("record") FundPortfolio record, @Param("example") FundPortfolioExample example);
 
     int updateByExample(@Param("record") FundPortfolio record, @Param("example") FundPortfolioExample example);
+
+    int updateByPrimaryKeySelective(FundPortfolio record);
+
+    int updateByPrimaryKey(FundPortfolio record);
 }

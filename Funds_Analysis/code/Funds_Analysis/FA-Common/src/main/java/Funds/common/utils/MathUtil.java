@@ -26,7 +26,6 @@ public class MathUtil {
             //FIXME 根据shortName字段的最后一个字符 判断A B C资产
             return null;
         }
-        System.out.println(str.trim());
         return new BigDecimal(str.trim());
     }
 
