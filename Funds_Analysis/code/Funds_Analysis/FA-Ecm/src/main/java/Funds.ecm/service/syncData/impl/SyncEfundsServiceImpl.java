@@ -6,6 +6,7 @@ import Funds.common.utils.MathUtil;
 import Funds.dao.root.fund.dao.FundInfo;
 import Funds.dao.root.fund.dao.FundInfoExample;
 import Funds.dao.root.fund.dao.FundPortfolio;
+import Funds.dao.root.fund.dao.FundPortfolioExample;
 import Funds.dao.root.fund.iface.FundInfoMapper;
 import Funds.dao.root.fund.iface.FundPortfolioMapper;
 import Funds.ecm.dto.syncData.FundDto;
@@ -72,7 +73,7 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
         }
     }
 
-
+    @Transactional
     public void syncFundPortfolioOfEfunds() {
         //获取所有易方达基金：1股票型、4混合型、5指数型
         FundInfoExample example = new FundInfoExample();
@@ -82,6 +83,11 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
         List<FundInfo> fundInfos = fundInfoMapper.selectByExample(example);
         if (fundInfos != null && fundInfos.size() > 0){
             for (FundInfo fund : fundInfos){
+                //清理历史基金投资数据
+                FundPortfolioExample fundPortfolioExample = new FundPortfolioExample();
+                FundPortfolioExample.Criteria fundPortfolioExampleCriteria = fundPortfolioExample.createCriteria();
+                fundPortfolioExampleCriteria.andFundCodeEqualTo(fund.getFundCode());
+                fundPortfolioMapper.deleteByExample(fundPortfolioExample);
                 List<StockInvestDto> stockInvestDtos = getStockInvest(fund.getFundCode());
                 for (StockInvestDto dto : stockInvestDtos){
                     FundPortfolio portfolio = new FundPortfolio();
@@ -89,9 +95,9 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                     portfolio.setFundName(fund.getFundName());
                     portfolio.setCreateDt(new Date());
                     portfolio.setSort(dto.getSort());
-                    portfolio.setOccupProport(MathUtil.parseProport(dto.getProport()));
-                    portfolio.setStockAmount(MathUtil.parseFundScale(dto.getStockAmount()));
-                    portfolio.setStockWorth(MathUtil.parseFundScale(dto.getStockWorth()));
+                    portfolio.setOccupProport(!Strings.isNullOrEmpty(dto.getProport().trim())?MathUtil.parseProport(dto.getProport()):null);
+                    portfolio.setStockAmount(!Strings.isNullOrEmpty(dto.getStockAmount().trim())?MathUtil.parseFundScale(dto.getStockAmount()):null);
+                    portfolio.setStockWorth(!Strings.isNullOrEmpty(dto.getStockWorth().trim())?MathUtil.parseFundScale(dto.getStockWorth()):null);
                     portfolio.setStDt(DateUtil.parseToDate(dto.getStDate(),DateUtil.formate_yyyy_MM_dd));
                     portfolio.setStockCode(dto.getStockCode());
                     portfolio.setStockName(dto.getStockName());
@@ -300,7 +306,6 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                     stockInvestDto.setStockWorth(HtmlUtil.rmHTMLTag(cols[4].getStringText()));
                     stockInvestDto.setProport(HtmlUtil.rmHTMLTag(cols[5].getStringText()));
                     stockInvestDtos.add(stockInvestDto);
-                    System.out.println(JSONObject.toJSONString(stockInvestDto));
                 }
             }
         }catch (Exception e){
