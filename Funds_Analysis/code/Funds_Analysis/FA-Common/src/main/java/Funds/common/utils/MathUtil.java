@@ -22,6 +22,15 @@ public class MathUtil {
 
         str = str.replace("元","");
         str = str.replace(",","");
-        return new BigDecimal(str);
+        if (str.indexOf("类") > 0 || str.indexOf("级") > 0){
+            //FIXME 根据shortName字段的最后一个字符 判断A B C资产
+            return null;
+        }
+        return new BigDecimal(str.trim());
+    }
+
+    public static BigDecimal parseProport(String str){
+        BigDecimal proport = new BigDecimal(str);
+        return proport.multiply(new BigDecimal(100));
     }
 }

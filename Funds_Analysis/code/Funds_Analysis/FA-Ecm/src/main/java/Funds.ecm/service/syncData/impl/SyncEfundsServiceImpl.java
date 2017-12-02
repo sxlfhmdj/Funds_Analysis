@@ -3,17 +3,17 @@ package Funds.ecm.service.syncData.impl;
 import Funds.common.utils.DateUtil;
 import Funds.common.utils.HtmlUtil;
 import Funds.common.utils.MathUtil;
-import Funds.dao.root.dao.FundInfo;
-import Funds.dao.root.dao.FundInfoExample;
-import Funds.dao.root.dao.FundPortfolio;
-import Funds.dao.root.iface.FundInfoMapper;
+import Funds.dao.root.fund.dao.FundInfo;
+import Funds.dao.root.fund.dao.FundInfoExample;
+import Funds.dao.root.fund.dao.FundPortfolio;
+import Funds.dao.root.fund.iface.FundInfoMapper;
+import Funds.dao.root.fund.iface.FundPortfolioMapper;
 import Funds.ecm.dto.syncData.FundDto;
 import Funds.ecm.dto.syncData.StockInvestDto;
 import Funds.ecm.service.syncData.SyncEfundsService;
 import Funds.entity.FundCompany;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
@@ -23,6 +23,7 @@ import org.htmlparser.tags.TableRow;
 import org.htmlparser.tags.TableTag;
 import org.htmlparser.util.NodeList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
@@ -36,9 +37,13 @@ import java.util.*;
  * @author <a href="mailto: dengjiang@camelotchina.com">邓江</a>
  * @version 1.0
  */
+@Service
 public class SyncEfundsServiceImpl implements SyncEfundsService{
     @Autowired
     private FundInfoMapper fundInfoMapper;
+
+    @Autowired
+    private FundPortfolioMapper fundPortfolioMapper;
 
 
     @Transactional
@@ -61,7 +66,7 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                 fund.setHostPer(dto.getHostPer());
                 fund.setRiskLvl(dto.getRiskLvl());
                 fund.setSetUpDt(dto.getSetUpDate());
-                fund.setFundScale(MathUtil.parseFundScale(dto.getFundScale()));
+                fund.setFundScale(!Strings.isNullOrEmpty(dto.getFundScale().trim())? MathUtil.parseFundScale(dto.getFundScale()) : null);
                 fundInfoMapper.insert(fund);
             }
         }
@@ -82,11 +87,18 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                     FundPortfolio portfolio = new FundPortfolio();
                     portfolio.setFundCode(fund.getFundCode());
                     portfolio.setFundName(fund.getFundName());
-                    portfolio.set
+                    portfolio.setCreateDt(new Date());
+                    portfolio.setSort(dto.getSort());
+                    portfolio.setOccupProport(MathUtil.parseProport(dto.getProport()));
+                    portfolio.setStockAmount(MathUtil.parseFundScale(dto.getStockAmount()));
+                    portfolio.setStockWorth(MathUtil.parseFundScale(dto.getStockWorth()));
+                    portfolio.setStDt(DateUtil.parseToDate(dto.getStDate(),DateUtil.formate_yyyy_MM_dd));
+                    portfolio.setStockCode(dto.getStockCode());
+                    portfolio.setStockName(dto.getStockName());
+                    fundPortfolioMapper.insert(portfolio);
                 }
             }
         }
-
     }
 
     /**
@@ -99,6 +111,7 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
      */
     private List<FundDto> getEfunds() {
         List<FundDto> fundDtos = new ArrayList<FundDto>();
+        List<FundDto> rtfundDtos = new ArrayList<FundDto>();
         try {
             //解析通过URL打开的链接
             Parser parser = new Parser(new URL("https://e.efunds.com.cn/funds").openConnection());
@@ -124,7 +137,17 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                     TableRow row = (TableRow) node;
 
                     FundDto fund = new FundDto();
+
                     String fundCode = row.getAttribute("fCode");
+                    boolean flag = false;
+                    for (FundDto dto : fundDtos){
+                        if (dto.getFundCode().equals(fundCode)){
+                            flag = true;
+                        }
+                    }
+                    if (flag){
+                        continue;
+                    }
                     fund.setShortName(row.getAttribute("fName"));
                     fund.setFundType(row.getAttribute("fundType"));
                     fund.setFundPy(row.getAttribute("fPy"));
@@ -169,8 +192,13 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                             }
                             if ("基金合同生效日".equals(cols[0].getStringText())){
                                 String dtStr = HtmlUtil.rmHTMLTag(cols[2].getStringText());
-                                if (!Strings.isNullOrEmpty(dtStr)){
-                                    fundDto.setSetUpDate(DateUtil.parseToDate(dtStr, DateUtil.formate_C_yyyyMMdd));
+                                if ((!Strings.isNullOrEmpty(dtStr))) {
+                                    //FIXME 根据shortName 最后一个字符判断基金创建时间是取A B C
+                                    if (dtStr.trim().length() > 12) {
+                                        fundDto.setSetUpDate(DateUtil.parseToDate(dtStr.trim().substring(dtStr.trim().length() - 11, dtStr.trim().length()), DateUtil.formate_C_yyyyMMdd));
+                                    }else if (dtStr.trim().length() == 12){
+                                        fundDto.setSetUpDate(DateUtil.parseToDate(dtStr.trim(), DateUtil.formate_C_yyyyMMdd));
+                                    }
                                 }
 
                             }
@@ -182,22 +210,19 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                             }
                         }
                     }
-                    fundDtos.add(fundDto);
-                    if (fundDto.getFundType().equals("1") || fundDto.getFundType().equals("4") || fundDto.getFundType().equals("5")){
-                        System.out.println(JSONObject.toJSONString(fundDto));
-                    }
+                    rtfundDtos.add(fundDto);
                 }
             }
 
         } catch (Exception e) {
             e.getStackTrace();
         }
-        return fundDtos;
+        return rtfundDtos;
     }
 
 
     /**获取基金投资组合数据**/
-    public List<StockInvestDto> getStockInvest(String fundCode){
+    private List<StockInvestDto> getStockInvest(String fundCode){
         List<StockInvestDto> stockInvestDtos = new ArrayList<StockInvestDto>();
         int[] months = new int[]{3,6,9,12};
         int[] days = new int[]{31,30,30,31};
@@ -283,6 +308,7 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
         }
         return stockInvestDtos;
     }
+
 
 
 }

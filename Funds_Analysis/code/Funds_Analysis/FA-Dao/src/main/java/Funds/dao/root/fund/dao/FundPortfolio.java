@@ -1,4 +1,4 @@
-package Funds.dao.root.dao;
+package Funds.dao.root.fund.dao;
 
 import java.math.BigDecimal;
 import java.util.Date;

@@ -10,7 +10,7 @@ server:
 spring:
   # --druid 连接池配置 start
   datasource:
-    url: jdbc:mysql://10.6.60.190:3306/funds_analysis?characterEncoding=utf8
+    url: jdbc:mysql://192.168.1.107:3306/funds_analysis?characterEncoding=utf8
     username: root
     password: 11112222
     # 下面为连接池的补充设置，应用到上面所有数据源中
@@ -23,14 +23,24 @@ spring:
       maxWait: 60000
   # --druid 配置 end
 
-#
+
 #  #redis配置
-#  redis:
-#    host: 10.6.60.35
-#    port: 6379
-#    pool:
-#      max-idle: 10
-#      min-idle: 5
-#      max-active: 8
-#      max-wait: 3000
-#      max-total: 30
+  redis:
+    host: 192.168.1.107
+    port: 6379
+    password: 11112222
+    pool:
+      max-idle: 10
+      min-idle: 5
+      max-active: 8
+      max-wait: 3000
+      max-total: 30
+
+
+# --日志管理 start
+logging:
+  level:
+    root: info
+    Funds.dao.: debug
+  file: ./logs/FA-Ecm
+# --日志管理 end

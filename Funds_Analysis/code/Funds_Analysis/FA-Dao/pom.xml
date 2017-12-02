@@ -7,9 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>FA-Dao</artifactId>
-    <packaging>war</packaging>
-    <name>FA-Dao Maven Webapp</name>
-    <url>http://maven.apache.org</url>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -38,5 +36,15 @@
     </dependencies>
     <build>
         <finalName>FA-Dao</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/java/Funds/dao</directory>
+                <targetPath>mapper</targetPath>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

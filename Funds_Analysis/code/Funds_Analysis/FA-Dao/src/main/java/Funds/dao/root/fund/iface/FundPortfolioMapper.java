@@ -1,7 +1,7 @@
-package Funds.dao.root.iface;
+package Funds.dao.root.fund.iface;
 
-import Funds.dao.root.dao.FundPortfolio;
-import Funds.dao.root.dao.FundPortfolioExample;
+import Funds.dao.root.fund.dao.FundPortfolio;
+import Funds.dao.root.fund.dao.FundPortfolioExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 

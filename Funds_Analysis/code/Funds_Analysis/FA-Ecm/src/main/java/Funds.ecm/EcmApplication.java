@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * <p>Discription:[启动类]</p>
  **/
 @EnableTransactionManagement
-@MapperScan("Funds.dao.root.iface")
+@MapperScan("Funds.dao.root")
 @EnableScheduling
 @SpringBootApplication
 public class EcmApplication {

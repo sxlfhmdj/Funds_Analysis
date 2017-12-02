@@ -9,21 +9,21 @@
             <property name="suppressAllComments" value="true" />
         </commentGenerator>
         <!-- 数据库链接URL、用户名、密码 -->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://10.6.60.190:3306/funds_analysis?characterEncoding=utf8" userId="root" password="11112222"/>
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.1.107:3306/funds_analysis?characterEncoding=utf8" userId="root" password="11112222"/>
         <javaTypeResolver>
             <property name="forceBigDecimals" value="false" />
         </javaTypeResolver>
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="Funds.dao.root.dao" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
+        <javaModelGenerator targetPackage="Funds.dao.root.fund.dao" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
             <property name="trimStrings" value="true" />
         </javaModelGenerator>
         <!-- 生成的映射文件包名和位置 -->
-        <sqlMapGenerator targetPackage="Funds.dao.root.xml" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
+        <sqlMapGenerator targetPackage="Funds.dao.root.fund.xml" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
         </sqlMapGenerator>
         <!-- 生成DAO的包名和位置 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="Funds.dao.root.iface" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="Funds.dao.root.fund.iface" targetProject="D:\GitHome\Funds_Analysis\Funds_Analysis\code\Funds_Analysis\FA-Dao\src\main\java">
             <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
         <!-- 要生成那些表(更改tableName和domainObjectName就可以) -->
