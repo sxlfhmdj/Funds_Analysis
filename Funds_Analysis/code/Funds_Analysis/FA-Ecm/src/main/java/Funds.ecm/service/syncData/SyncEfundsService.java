@@ -2,6 +2,7 @@ package Funds.ecm.service.syncData;
 
 /**
  * <p>Description: [同步易方达数据服务]</p>
+ * TODO 增加历史数据存储表 his，保证可恢复性
  * Copyright (c) 2017 北京柯莱特科技有限公司
  * Created on: 2017/12/1
  *

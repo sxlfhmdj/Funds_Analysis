@@ -50,18 +50,19 @@ public class GetEfundsTest {
         String efundsUrl = "https://e.efunds.com.cn/funds";
         GetEfundsTest test = new GetEfundsTest();
         List<FundDto> fundAll = test.getEfunds(efundsUrl);
-        List<StockInvestDto> stockInvestAll = new ArrayList<StockInvestDto>();
-        for (FundDto fund : fundAll){
-            String fundType = fund.getFundType();
-            System.out.println(JSONObject.toJSONString(fund));
-//            if ("1".equals(fundType) || "4".equals(fundType) || "5".equals(fundType)){
-//                List<StockInvestDto> stockInvests = test.getStockInvest(fund.getFundCode());
-//                for (StockInvestDto dto : stockInvests){
-//                    System.out.println(JSONObject.toJSONString(dto));
-//                }
-//                stockInvestAll.addAll(stockInvests);
-//            }
-        }
+        System.out.println(JSONObject.toJSONString(fundAll));
+//        List<StockInvestDto> stockInvestAll = new ArrayList<StockInvestDto>();
+//        for (FundDto fund : fundAll){
+//            String fundType = fund.getFundType();
+//            System.out.println(JSONObject.toJSONString(fund));
+////            if ("1".equals(fundType) || "4".equals(fundType) || "5".equals(fundType)){
+////                List<StockInvestDto> stockInvests = test.getStockInvest(fund.getFundCode());
+////                for (StockInvestDto dto : stockInvests){
+////                    System.out.println(JSONObject.toJSONString(dto));
+////                }
+////                stockInvestAll.addAll(stockInvests);
+////            }
+//        }
 
     }
 
@@ -77,6 +78,7 @@ public class GetEfundsTest {
      */
     public List<FundDto> getEfunds(String url) {
         List<FundDto> fundDtos = new ArrayList<FundDto>();
+        System.out.println("**************start******************");
         try {
             //解析通过URL打开的链接
             Parser parser = new Parser(new URL(url).openConnection());
@@ -149,7 +151,9 @@ public class GetEfundsTest {
                                 fundDto.setFundName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
                             }
                             if ("基金合同生效日".equals(cols[0].getStringText())){
-                                fundDto.setSetUpDate(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
+                                String str = HtmlUtil.rmHTMLTag(cols[2].getStringText()).trim();
+                                System.out.println("基金合同生效日:" + str);
+                                fundDto.setSetUpDate(str);
                             }
                             if ("基金托管人".equals(cols[0].getStringText())){
                                 fundDto.setHostPer(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
@@ -160,9 +164,6 @@ public class GetEfundsTest {
                         }
                     }
                     fundDtos.add(fundDto);
-                    if (fundDto.getFundType().equals("1") || fundDto.getFundType().equals("4") || fundDto.getFundType().equals("5")){
-                        System.out.println(JSONObject.toJSONString(fundDto));
-                    }
                 }
             }
 
@@ -252,7 +253,6 @@ public class GetEfundsTest {
                     stockInvestDto.setStockWorth(HtmlUtil.rmHTMLTag(cols[4].getStringText()));
                     stockInvestDto.setProport(HtmlUtil.rmHTMLTag(cols[5].getStringText()));
                     stockInvestDtos.add(stockInvestDto);
-                    System.out.println(JSONObject.toJSONString(stockInvestDto));
                 }
             }
         }catch (Exception e){
