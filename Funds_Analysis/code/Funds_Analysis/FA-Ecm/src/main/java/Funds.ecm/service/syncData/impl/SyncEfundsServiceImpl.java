@@ -199,9 +199,12 @@ public class SyncEfundsServiceImpl implements SyncEfundsService{
                             if ("基金合同生效日".equals(cols[0].getStringText())){
                                 String dtStr = HtmlUtil.rmHTMLTag(cols[2].getStringText());
                                 if ((!Strings.isNullOrEmpty(dtStr))) {
-                                    //FIXME 根据shortName 最后一个字符判断基金创建时间是取A B C
+                                    //根据shortName 最后一个字符判断基金创建时间是取A B C
                                     if (dtStr.trim().length() > 12) {
-                                        fundDto.setSetUpDate(DateUtil.parseToDate(dtStr.trim().substring(dtStr.trim().length() - 11, dtStr.trim().length()), DateUtil.formate_C_yyyyMMdd));
+                                        //获取当前基金的简称
+                                        String shortName = fundDto.getShortName();
+                                        String flag = shortName.substring(shortName.length()-1 ,shortName.length());
+                                        fundDto.setSetUpDate(DateUtil.parseToDate(dtStr.trim().substring(dtStr.trim().indexOf(flag) + 2, dtStr.trim().indexOf(flag) + 13), DateUtil.formate_C_yyyyMMdd));
                                     }else if (dtStr.trim().length() == 12){
                                         fundDto.setSetUpDate(DateUtil.parseToDate(dtStr.trim(), DateUtil.formate_C_yyyyMMdd));
                                     }

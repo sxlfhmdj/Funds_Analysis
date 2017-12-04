@@ -2,6 +2,7 @@ package Funds.test;
 
 import Funds.test.dto.FundDto;
 import Funds.test.dto.StockInvestDto;
+import Funds.test.util.DateUtil;
 import Funds.test.util.HtmlUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.htmlparser.Node;
@@ -78,7 +79,7 @@ public class GetEfundsTest {
      */
     public List<FundDto> getEfunds(String url) {
         List<FundDto> fundDtos = new ArrayList<FundDto>();
-        System.out.println("**************start******************");
+        List<FundDto> rtDtos = new ArrayList<FundDto>();
         try {
             //解析通过URL打开的链接
             Parser parser = new Parser(new URL(url).openConnection());
@@ -151,9 +152,18 @@ public class GetEfundsTest {
                                 fundDto.setFundName(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
                             }
                             if ("基金合同生效日".equals(cols[0].getStringText())){
-                                String str = HtmlUtil.rmHTMLTag(cols[2].getStringText()).trim();
-                                System.out.println("基金合同生效日:" + str);
-                                fundDto.setSetUpDate(str);
+                                String dtStr = HtmlUtil.rmHTMLTag(cols[2].getStringText()).trim();
+                                System.out.println("基金合同生效日*:" + dtStr);
+                                if (dtStr.trim().length() > 12) {
+                                    String shortName = fundDto.getShortName();
+                                    String flag = shortName.substring(shortName.length()-1 ,shortName.length());
+                                    dtStr = dtStr.substring(dtStr.trim().indexOf(flag) + 2, dtStr.trim().indexOf(flag) + 13);
+                                    fundDto.setSetUpDate(dtStr);
+                                }else if (dtStr.trim().length() == 12){
+                                    fundDto.setSetUpDate(dtStr.trim());
+                                }
+                                System.out.println("基金合同生效日**:" + dtStr);
+                                fundDto.setSetUpDate(dtStr);
                             }
                             if ("基金托管人".equals(cols[0].getStringText())){
                                 fundDto.setHostPer(HtmlUtil.rmHTMLTag(cols[2].getStringText()));
@@ -163,14 +173,13 @@ public class GetEfundsTest {
                             }
                         }
                     }
-                    fundDtos.add(fundDto);
+                    rtDtos.add(fundDto);
                 }
             }
-
         } catch (Exception e) {
-            e.getStackTrace();
+           e.getStackTrace();
         }
-        return fundDtos;
+        return rtDtos;
     }
 
 
